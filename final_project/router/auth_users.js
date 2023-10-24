@@ -50,17 +50,18 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   let review =  req.query.review;
   if(req.session.authorization) {
     token = req.session.authorization['accessToken'];
+    username = req.session.authorization['username'];
     jwt.verify(token, "access",(err,user)=>{
         if(!err){
             req.user = user;
-            let username = user.username;
+            //let username = user.username;
             //let userexsit= (books[isbn].reviews).filter((user1) => {
                //return (user1.userame === username);
             //});
             let exist = false;
             for (i in books[isbn].reviews) {
                 if(i === username){
-                    books[isbn].reviews.username = review;
+                    books[isbn].reviews[username] = review;
                     exist = true;
                     return res.status(200).send("the review is modified");
                
@@ -68,7 +69,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
             }
             if(!exist){
                 books[isbn].reviews[username] = review;
-                res.status(200).send("the review has been added");
+                res.status(200).send(username);
             }
             next();
         }
