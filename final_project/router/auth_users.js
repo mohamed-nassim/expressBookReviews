@@ -83,6 +83,41 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   
   //return res.status(300).json({message: "Yet to be implemented"});
 });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    let isbn= req.params.isbn;
+    if(req.session.authorization) {
+        token = req.session.authorization['accessToken'];
+        username = req.session.authorization['username'];
+        jwt.verify(token, "access",(err,user)=>{
+            if(!err){
+                req.user = user;
+                //let username = user.username;
+                //let userexsit= (books[isbn].reviews).filter((user1) => {
+                   //return (user1.userame === username);
+                //});
+                let exist = false;
+                for (i in books[isbn].reviews) {
+                    if(i === username){
+                        delete books[isbn].reviews[i];
+                        exist = true;
+                        return res.status(200).send("the review is removed");
+                   
+                    }
+                }
+                if(!exist){
+                    res.status(200).send("This user dosen't have a review");
+                }
+                next();
+            }
+            else{
+                return res.status(403).json({message: "User not authenticated"})
+            }
+         });
+     } else {
+         return res.status(403).json({message: "User not logged in"})
+     }
+    
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
